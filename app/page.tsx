@@ -5,44 +5,6 @@ import Link from "next/link";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
-interface CategorySection {
-  title: string;
-  slug: string;
-  description: string;
-  icon: string;
-  gradient: string;
-}
-
-const categories: CategorySection[] = [
-  {
-    title: "Dresses",
-    slug: "dresses",
-    description: "Elegant and stylish dresses for every occasion",
-    icon: "👗",
-    gradient: "from-tan-400 to-tan-600",
-  },
-  {
-    title: "Bags",
-    slug: "bags",
-    description: "Handbags, totes, and accessories",
-    icon: "👜",
-    gradient: "from-beige-400 to-beige-600",
-  },
-  {
-    title: "Jewelry",
-    slug: "jewelry",
-    description: "Beautiful jewelry pieces to complete your look",
-    icon: "💎",
-    gradient: "from-primary-400 to-primary-600",
-  },
-  {
-    title: "Other",
-    slug: "other",
-    description: "Discover more unique pieces",
-    icon: "✨",
-    gradient: "from-tan-300 to-beige-500",
-  },
-];
 
 async function getFeaturedProducts() {
   try {
@@ -58,39 +20,39 @@ async function getFeaturedProducts() {
   }
 }
 
-async function getRandomProduct(categorySlug: string) {
+async function getCategoryProducts(categorySlug: string, limit = 3) {
   try {
-    if (!client) return null;
+    if (!client) return [];
     const products = await client.fetch(productsByCategoryQuery, { categorySlug });
-    if (!products || products.length === 0) return null;
+    if (!products || products.length === 0) return [];
 
-    // Pick a random product from the category
-    const randomIndex = Math.floor(Math.random() * products.length);
-    return products[randomIndex];
+    // Shuffle and pick up to 'limit' products
+    return products
+      .sort(() => Math.random() - 0.5)
+      .slice(0, limit);
   } catch (error) {
-    console.error(`Error fetching random product for ${categorySlug}:`, error);
-    return null;
+    console.error(`Error fetching products for ${categorySlug}:`, error);
+    return [];
   }
 }
 
 export default async function Home() {
   // Fetch featured products
   const featuredProductsPromise = getFeaturedProducts();
-  const randomDressPromise = getRandomProduct("dresses");
-  const randomBagPromise = getRandomProduct("bags");
-  const randomJewelryPromise = getRandomProduct("jewelry");
+  const dressPromise = getCategoryProducts("dresses", 3);
+  const bagPromise = getCategoryProducts("bags", 3);
+  const jewelryPromise = getCategoryProducts("jewelry", 3);
 
-  const [featuredProducts, dress, bag, jewelry] = await Promise.all([
+  const [featuredProducts, dresses, bags, jewelry] = await Promise.all([
     featuredProductsPromise,
-    randomDressPromise,
-    randomBagPromise,
-    randomJewelryPromise
+    dressPromise,
+    bagPromise,
+    jewelryPromise
   ]);
 
-  // Filter out nulls and shuffle the 3 carousel items
-  const carouselProducts = [dress, bag, jewelry]
+  // Combine, filter out nulls and shuffle all carousel items
+  const carouselProducts = [...dresses, ...bags, ...jewelry]
     .filter(Boolean)
-    // Optional: shuffle them so it's not always Dress -> Bag -> Jewelry
     .sort(() => Math.random() - 0.5);
 
   return (
@@ -106,7 +68,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left animate-fade-in-up">
               <h1 className="text-5xl font-extrabold text-primary-900 sm:text-7xl tracking-tight mb-6 drop-shadow-sm">
-                Welcome to <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-tan-600 mt-2">Cuchi's Boutique</span>
+                Welcome to <span className="block text-primary-900 mt-2">Cuchi's Boutique</span>
               </h1>
               <p className="mt-4 text-xl sm:text-2xl text-primary-800/80 max-w-2xl mx-auto lg:mx-0 font-medium delay-100 animate-fade-in-up">
                 Discover our curated collection of quality products, designed to elevate your everyday style.
@@ -114,7 +76,7 @@ export default async function Home() {
               <div className="mt-10 delay-200 animate-fade-in-up">
                 <Link
                   href="/products"
-                  className="inline-flex items-center rounded-full bg-primary-800 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className="inline-flex items-center rounded-full bg-white border-2 border-primary-900 px-8 py-4 text-lg font-semibold text-primary-900 shadow-lg hover:bg-primary-50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
                   Shop the Collection
                 </Link>
@@ -171,71 +133,13 @@ export default async function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-              {featuredProducts.slice(0, 4).map((product: any) => (
+              {featuredProducts.slice(0, 8).map((product: any) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
           </section>
         )}
 
-        {/* Shop by Category Section */}
-        <section className="mb-16">
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-primary-800">
-                Shop by Category
-              </h2>
-              <p className="mt-2 text-primary-700">
-                Find exactly what you're looking for
-              </p>
-            </div>
-            <Link
-              href="/shop"
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Directory →
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-            {categories.map((category) => {
-              // Parse gradient carefully to build inline style like in Shop
-              let fromColor = "var(--color-primary-400)";
-              let toColor = "var(--color-primary-600)";
-
-              try {
-                const parts = category.gradient.split(' ');
-                if (parts.length >= 2) {
-                  const fromPart = parts[0].replace('from-', '');
-                  const toPart = parts[1].replace('to-', '');
-                  fromColor = `var(--color-${fromPart})`;
-                  toColor = `var(--color-${toPart})`;
-                }
-              } catch (e) {
-                console.error("Error parsing gradient:", e);
-              }
-
-              return (
-                <Link
-                  key={category.slug}
-                  href={`/products?category=${category.slug}`}
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br p-6 text-white transition-all duration-300 hover:scale-105 active:scale-[0.98] shadow-md hover:shadow-lg flex flex-col justify-center items-center text-center aspect-[4/3] sm:aspect-auto"
-                  style={{
-                    background: `linear-gradient(135deg, ${fromColor}, ${toColor})`,
-                  }}
-                >
-                  <div className="text-4xl mb-3">{category.icon}</div>
-                  <h3 className="text-lg sm:text-xl font-bold mb-1">{category.title}</h3>
-                  <div className="mt-2 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                    <span className="inline-flex items-center text-xs sm:text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-                      Shop Now
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
       </div>
     </div>
   );

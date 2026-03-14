@@ -29,6 +29,7 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden space-x-8 lg:flex">
+          <Link href="/" className="text-sm font-bold uppercase tracking-widest text-white hover:text-beige-200 transition-colors">Home</Link>
           <Link href="/shop" className="text-sm font-bold uppercase tracking-widest text-white hover:text-beige-200 transition-colors">Shop</Link>
           <Link href="/products" className="text-sm font-bold uppercase tracking-widest text-white hover:text-beige-200 transition-colors">All Products</Link>
           <Link href="/products?featured=true" className="text-sm font-bold uppercase tracking-widest text-white hover:text-beige-200 transition-colors">Featured</Link>
@@ -68,6 +69,13 @@ export default function Header() {
       {menuOpen && (
         <div className="lg:hidden border-t border-amber-500 bg-amber-900 px-4 py-6 shadow-inner animate-in slide-in-from-top duration-300">
           <div className="flex flex-col space-y-4">
+            <Link
+              href="/"
+              className="text-lg font-bold uppercase tracking-[0.2em] text-white py-3 border-b border-white/10 text-center"
+              onClick={() => setMenuOpen(false)}
+            >
+              Home
+            </Link>
             <Link
               href="/shop"
               className="text-lg font-bold uppercase tracking-[0.2em] text-white py-3 border-b border-white/10 text-center"

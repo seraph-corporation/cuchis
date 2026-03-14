@@ -79,65 +79,17 @@ export default async function ShopPage() {
         </p>
       </div>
 
-      {/* Category Cards */}
-      <div className="mb-16 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-        {categoryMetadata.map((category) => {
-          // Default gradient if none provided
-          const gradient = category.gradient || "from-primary-400 to-primary-600";
-
-          // Parse gradient safely
-          let fromColor = "var(--color-primary-400)";
-          let toColor = "var(--color-primary-600)";
-
-          try {
-            const parts = gradient.split(' ');
-            if (parts.length >= 2) {
-              const fromPart = parts[0].replace('from-', '');
-              const toPart = parts[1].replace('to-', '');
-              fromColor = `var(--color-${fromPart})`;
-              toColor = `var(--color-${toPart})`;
-            }
-          } catch (e) {
-            console.error("Error parsing gradient:", e);
-          }
-
-          const productCount = productsByType[category.slug]?.length || 0;
-
-          return (
-            <Link
-              key={category.slug}
-              href={`/products?category=${category.slug}`}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-br p-4 sm:p-8 text-white transition-all duration-300 hover:scale-105 active:scale-[0.98] shadow-md hover:shadow-xl"
-              style={{
-                background: `linear-gradient(135deg, ${fromColor}, ${toColor})`,
-              }}
-            >
-              <div className="text-3xl sm:text-5xl mb-2 sm:mb-4">{category.icon}</div>
-              <h3 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">{category.title}</h3>
-              <p className="text-[10px] sm:text-sm opacity-90 mb-3 sm:mb-4 line-clamp-2 md:line-clamp-none">
-                {category.description}
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <span className="text-[10px] sm:text-sm font-medium">
-                  {productCount} {productCount === 1 ? "item" : "items"}
-                </span>
-                <svg
-                  className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-            </Link>
-          );
-        })}
+      {/* Category Navigation (Clean Tabs or Simple Text) */}
+      <div className="mb-12 flex flex-wrap justify-center gap-4">
+        {categoryMetadata.map((category) => (
+          <Link
+            key={category.slug}
+            href={`/products?category=${category.slug}`}
+            className="px-6 py-2 rounded-full border border-primary-200 text-primary-800 hover:bg-primary-50 transition-colors font-medium"
+          >
+            {category.title}
+          </Link>
+        ))}
       </div>
 
       {/* Product Sections */}
