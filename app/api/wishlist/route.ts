@@ -4,12 +4,6 @@ import { db } from "@/app/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
-    // const userId = (session.user as any).id;
     const userId = "guest_user_123";
 
     const wishlist = await db.wishlist.findMany({
@@ -29,11 +23,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
     const { productId } = await request.json();
 
     if (!productId) {
@@ -43,7 +32,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // const userId = (session.user as any).id;
     const userId = "guest_user_123";
 
     // Check if already in wishlist
@@ -77,11 +65,6 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get("productId");
 
@@ -92,7 +75,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // const userId = (session.user as any).id;
     const userId = "guest_user_123";
 
     const item = await db.wishlist.findFirst({

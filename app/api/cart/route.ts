@@ -4,11 +4,6 @@ import { db } from "@/app/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
     const userId = "guest_user_123"; // Logic for guest user
 
     const cart = await db.cart.findUnique({
@@ -36,11 +31,6 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
     const { searchParams } = new URL(request.url);
     const itemId = searchParams.get("itemId");
 
@@ -64,11 +54,6 @@ export async function DELETE(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
     const { itemId, quantity } = await request.json();
 
     if (!itemId || quantity === undefined) {
