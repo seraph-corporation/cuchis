@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-// import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Button from "@/app/components/ui/button";
 

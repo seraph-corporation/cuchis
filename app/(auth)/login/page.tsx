@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/app/components/ui/button";
@@ -15,27 +14,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Invalid email or password");
-      } else {
-        router.push("/");
-        router.refresh();
-      }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    setError("Sign-in is currently disabled. All features are available as a guest.");
   };
 
   return (

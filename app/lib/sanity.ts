@@ -1,5 +1,5 @@
-import { createClient } from "@sanity/client";
-import createImageUrlBuilder from "@sanity/image-url";
+import { createClient } from "next-sanity";
+import imageUrlBuilder from "@sanity/image-url";
 
 const projectId = "p8o637q1";
 const dataset = "production";
@@ -12,10 +12,16 @@ export const client = createClient({
   useCdn: true,
 });
 
-const builder = client ? createImageUrlBuilder(client) : null;
+const builder = client ? imageUrlBuilder(client) : null;
 
 export function urlFor(source: any) {
-  if (!builder || !source) return { src: "", width: 0, height: 0 };
+  if (!builder || !source) {
+    return {
+      width: () => ({ height: () => ({ url: () => "" }) }),
+      height: () => ({ width: () => ({ url: () => "" }) }),
+      url: () => "",
+    } as any;
+  }
   return builder.image(source);
 }
 

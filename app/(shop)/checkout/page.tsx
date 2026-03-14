@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import Button from "@/app/components/ui/button";
@@ -11,7 +10,6 @@ const stripePromise = loadStripe(
 );
 
 export default function CheckoutPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [shippingAddress, setShippingAddress] = useState({
@@ -33,10 +31,6 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session) {
-      router.push("/login");
-      return;
-    }
 
     setLoading(true);
     try {
@@ -51,13 +45,10 @@ export default function CheckoutPage() {
         }),
       });
 
-      const { sessionId } = await response.json();
+      const { url } = await response.json();
 
-      if (sessionId) {
-        const stripe = await stripePromise;
-        if (stripe) {
-          await stripe.redirectToCheckout({ sessionId });
-        }
+      if (url) {
+        window.location.href = url;
       }
     } catch (error) {
       console.error("Error creating checkout session:", error);
@@ -65,14 +56,6 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
-
-  if (!session) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <p>Please sign in to checkout</p>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">

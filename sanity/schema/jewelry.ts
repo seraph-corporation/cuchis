@@ -66,11 +66,4 @@ export default defineType({
             type: "string",
         }),
     ],
-    preview: {
-        select: {
-            title: "title",
-            subtitle: "price",
-            media: "images.0",
-        },
-    },
 });

@@ -56,15 +56,15 @@ type Review = {
 };
 
 class MockDB {
-    private carts: Cart[] = [];
-    private orders: Order[] = [];
-    private wishlist: WishlistItem[] = [];
-    private reviews: Review[] = [];
+    private _carts: Cart[] = [];
+    private _orders: Order[] = [];
+    private _wishlist: WishlistItem[] = [];
+    private _reviews: Review[] = [];
 
     // Cart
     cart = {
         findUnique: async ({ where, include }: any) => {
-            const cart = this.carts.find((c) => c.userId === where.userId);
+            const cart = this._carts.find((c) => c.userId === where.userId);
             if (!cart) return null;
             return cart;
         },
@@ -75,14 +75,14 @@ class MockDB {
                 items: [],
                 createdAt: new Date(),
             };
-            this.carts.push(newCart);
+            this._carts.push(newCart);
             return newCart;
         },
     };
 
     cartItem = {
         create: async ({ data }: any) => {
-            const cart = this.carts.find((c) => c.id === data.cartId);
+            const cart = this._carts.find((c) => c.id === data.cartId);
             if (cart) {
                 const newItem: CartItem = {
                     id: Math.random().toString(36).substring(7),
@@ -98,7 +98,7 @@ class MockDB {
             throw new Error("Cart not found");
         },
         update: async ({ where, data }: any) => {
-            for (const cart of this.carts) {
+            for (const cart of this._carts) {
                 const item = cart.items.find((i) => i.id === where.id);
                 if (item) {
                     if (data.quantity !== undefined) item.quantity = data.quantity;
@@ -108,7 +108,7 @@ class MockDB {
             throw new Error("Item not found");
         },
         delete: async ({ where }: any) => {
-            for (const cart of this.carts) {
+            for (const cart of this._carts) {
                 const index = cart.items.findIndex((i) => i.id === where.id);
                 if (index !== -1) {
                     return cart.items.splice(index, 1)[0];
@@ -116,41 +116,57 @@ class MockDB {
             }
             throw new Error("Item not found");
         },
+        deleteMany: async ({ where }: any = {}) => {
+            if (where?.cartId) {
+                const cart = this._carts.find((c) => c.id === where.cartId);
+                if (cart) {
+                    const count = cart.items.length;
+                    cart.items = [];
+                    return { count };
+                }
+            }
+            return { count: 0 };
+        }
     };
 
     // Order
     order = {
-        findMany: async ({ where, include, orderBy, take }: any) => {
-            let result = this.orders;
+        findMany: async ({ where, include, orderBy, take }: any = {}) => {
+            let result = this._orders;
             if (where?.userId) {
                 result = result.filter((o) => o.userId === where.userId);
             }
             if (where?.status) {
                 result = result.filter((o) => o.status === where.status);
             }
-            // Mock sorting/limiting if needed, effectively return all for now
             return result;
         },
         create: async ({ data }: any) => {
-            // Implementation for creating order would go here if we were processing checkout fully
-            // For now, checkout route doesn't seem to create order in DB (it calls Stripe), 
-            // but maybe webhook does? We don't have webhook route read yet. 
-            // Assuming simplistic usage for now.
-            return {};
+            const newOrder: Order = {
+                id: Math.random().toString(36).substring(7),
+                userId: data.userId,
+                total: data.total || 0,
+                status: data.status || "processing",
+                createdAt: new Date(),
+                items: [],
+                user: { email: "guest@example.com" }
+            };
+            this._orders.push(newOrder);
+            return newOrder;
         },
-        count: async ({ where }: any) => {
-            let result = this.orders;
+        count: async ({ where }: any = {}) => {
+            let result = this._orders;
             if (where?.status) {
                 result = result.filter((o) => o.status === where.status);
             }
             return result.length;
         },
-        aggregate: async ({ _sum }: any) => {
-            const total = this.orders.reduce((sum, o) => sum + o.total, 0);
+        aggregate: async ({ _sum }: any = {}) => {
+            const total = this._orders.reduce((sum, o) => sum + o.total, 0);
             return { _sum: { total } };
         },
         update: async ({ where, data }: any) => {
-            const order = this.orders.find(o => o.id === where.id);
+            const order = this._orders.find(o => o.id === where.id);
             if (order) {
                 if (data.status) order.status = data.status;
                 return order;
@@ -161,11 +177,11 @@ class MockDB {
 
     // Wishlist
     wishlist = {
-        findMany: async ({ where }: any) => {
-            return this.wishlist.filter((w) => w.userId === where.userId);
+        findMany: async ({ where }: any = {}) => {
+            return this._wishlist.filter((w) => w.userId === where?.userId);
         },
         findFirst: async ({ where }: any) => {
-            return this.wishlist.find(
+            return this._wishlist.find(
                 (w) => w.userId === where.userId && w.productId === where.productId
             );
         },
@@ -176,13 +192,13 @@ class MockDB {
                 productId: data.productId,
                 createdAt: new Date(),
             };
-            this.wishlist.push(newItem);
+            this._wishlist.push(newItem);
             return newItem;
         },
         delete: async ({ where }: any) => {
-            const index = this.wishlist.findIndex((w) => w.id === where.id);
+            const index = this._wishlist.findIndex((w) => w.id === where.id);
             if (index !== -1) {
-                return this.wishlist.splice(index, 1)[0];
+                return this._wishlist.splice(index, 1)[0];
             }
             throw new Error("Item not found");
         },
@@ -190,11 +206,11 @@ class MockDB {
 
     // Review
     review = {
-        findMany: async ({ where, include }: any) => {
-            return this.reviews.filter((r) => r.productId === where.productId);
+        findMany: async ({ where, include }: any = {}) => {
+            return this._reviews.filter((r) => r.productId === where?.productId);
         },
         findFirst: async ({ where }: any) => {
-            return this.reviews.find(
+            return this._reviews.find(
                 (r) => r.userId === where.userId && r.productId === where.productId
             );
         },
@@ -209,11 +225,11 @@ class MockDB {
                 createdAt: new Date(),
                 user: { name: "Guest User", email: "guest@example.com" }, // Mock user
             };
-            this.reviews.push(newReview);
+            this._reviews.push(newReview);
             return newReview;
         },
         update: async ({ where, data }: any) => {
-            const review = this.reviews.find(r => r.id === where.id);
+            const review = this._reviews.find(r => r.id === where.id);
             if (review) {
                 if (data.rating) review.rating = data.rating;
                 if (data.title !== undefined) review.title = data.title;

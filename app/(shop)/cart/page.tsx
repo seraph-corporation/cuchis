@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,19 +20,14 @@ interface CartItem {
 }
 
 export default function CartPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    if (session) {
-      fetchCart();
-    } else {
-      setLoading(false);
-    }
-  }, [session]);
+    fetchCart();
+  }, []);
 
   const fetchCart = async () => {
     try {
@@ -93,20 +87,6 @@ export default function CartPage() {
     }
   };
 
-  if (!session) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-primary-800 mb-4">
-            Please sign in to view your cart
-          </h1>
-          <Link href="/login">
-            <Button>Sign In</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

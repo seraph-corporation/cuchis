@@ -64,11 +64,4 @@ export default defineType({
             description: "e.g. 10x12x4 inches",
         }),
     ],
-    preview: {
-        select: {
-            title: "title",
-            subtitle: "price",
-            media: "images.0",
-        },
-    },
 });
