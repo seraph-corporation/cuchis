@@ -17,12 +17,6 @@ export default function Footer() {
               <li><Link href="/products" className="hover:text-amber-500 transition-colors">All Products</Link></li>
               <li><Link href="/products?featured=true" className="hover:text-amber-500 transition-colors">Featured</Link></li>
               <li><Link href="/shop" className="hover:text-amber-500 transition-colors">Shop by Category</Link></li>
-            </ul>
-          </div>
-          <div className="flex flex-col items-center sm:items-start">
-            <h4 className="font-bold mb-6 uppercase tracking-widest text-sm text-white border-b-2 border-amber-500 pb-1">Account</h4>
-            <ul className="space-y-3 text-sm text-primary-200">
-              <li><Link href="/account" className="hover:text-amber-500 transition-colors">My Profile</Link></li>
               <li><Link href="/cart" className="hover:text-amber-500 transition-colors">Shopping Cart</Link></li>
             </ul>
           </div>

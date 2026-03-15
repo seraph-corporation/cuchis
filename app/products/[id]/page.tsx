@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/app/components/product/add-to-cart-button";
-import ProductReviews from "@/app/components/product/product-reviews";
 
 export const revalidate = 60;
 
@@ -112,9 +111,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      <div className="mt-12">
-        <ProductReviews productId={product._id} />
-      </div>
     </div>
   );
 }
